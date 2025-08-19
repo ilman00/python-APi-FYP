@@ -10,7 +10,6 @@ app = FastAPI()
 # Load model and scaler
 model_1 = joblib.load("dyslexia_predictor_model.joblib")
 model_2 = joblib.load("child_dyslexia_xgb_model.pkl")
-scaler = joblib.load("scaler.pkl")
 
 
 app.add_middleware(
@@ -22,6 +21,11 @@ app.add_middleware(
 )
 
 # Define expected features from Node.js
+
+model = joblib.load("dyslexia_rf_model.pkl")
+
+app = FastAPI()
+
 
 class PredictRequest(BaseModel):
     age: int
@@ -37,17 +41,16 @@ class PredictRequest(BaseModel):
     patternMemory_score: int
     patternMemory_time: int
     patternMemory_errorsCount: int
-    readingFluency: int
-    readingComprehensionScore: int
-    spellingAccuracy: int
-    sightWordRecognitionScore: int
-    phonemeDeletionScore: int
-    rhymingScore: int
-    syllableSegmentationScore: int
-    nonWordReadingScore: int
+    reading_pronunciationAccuracy: int
+    reading_readingSpeedWpm: int
+    reading_timeTaken: int
+    reading_totalErrors: int
+    reading_totalScore: int
+    reading_readingFluency: int
     letterReversalCount: int
     ageStartedReading: int
     familyHistoryOfDyslexia: bool
+
 
 @app.post("/predict-english-test")
 def predict_child(data: PredictRequest):
@@ -65,22 +68,22 @@ def predict_child(data: PredictRequest):
         data.patternMemory_score,
         data.patternMemory_time,
         data.patternMemory_errorsCount,
-        data.readingFluency,
-        data.readingComprehensionScore,
-        data.spellingAccuracy,
-        data.sightWordRecognitionScore,
-        data.phonemeDeletionScore,
-        data.rhymingScore,
-        data.syllableSegmentationScore,
-        data.nonWordReadingScore,
+        data.reading_pronunciationAccuracy,
+        data.reading_readingSpeedWpm,
+        data.reading_timeTaken,
+        data.reading_totalErrors,
+        data.reading_totalScore,
+        data.reading_readingFluency,
         data.letterReversalCount,
         data.ageStartedReading,
-        int(data.familyHistoryOfDyslexia)  # Convert bool to int (True = 1, False = 0)
+        int(data.familyHistoryOfDyslexia)
     ]]
-    
-    prediction = model_1.predict(features)[0]  # 0 or 1
-    return {"prediction": int(prediction)}
 
+    prediction = model.predict(features)[0]
+    return {
+        "prediction": int(prediction),
+        "label": "Dyslexic" if prediction == 1 else "Non-Dyslexic"
+    }
 
 
 
