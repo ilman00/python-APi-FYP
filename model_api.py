@@ -80,6 +80,7 @@ def predict_child(data: PredictRequest):
     ]]
 
     prediction = model.predict(features)[0]
+    print("Model Prediction for English speaker: ", prediction)
     return {
         "prediction": int(prediction),
         "label": "Dyslexic" if prediction == 1 else "Non-Dyslexic"
@@ -125,6 +126,6 @@ def predict(data: TaskBasedInput):
 
     # ⚡ Predict
     prediction = model_2.predict(input_array)
-    print(prediction)
+    print("Model Prediction for non English speaker: ",prediction)
 
     return {"prediction": int(prediction[0])}
